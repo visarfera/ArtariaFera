@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Artaria Fera — Kaçanik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            padding-bottom: 72px
+        }
+
+        .panel {
+            display: none
+        }
+
+        .panel.active {
+            display: block
+        }
+
+        .sku {
+            font-family: 'Courier New', monospace;
+            letter-spacing: .5px
+        }
+
+        .lbl {
+            display: block;
+            font-size: .7rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 6px
+        }
+
+        .inp {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color .15s;
+            -webkit-appearance: none
+        }
+
+        .inp:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, .15)
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 50;
+            display: none;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .overlay.open {
+            display: flex
+        }
+
+        @media(min-width:640px) {
+            .overlay.open {
+                align-items: center
+            }
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: .75rem;
+            font-weight: 600
+        }
+
+        .tag .x {
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            opacity: .6;
+            padding: 2px
+        }
+
+        .tag .x:hover {
+            opacity: 1
+        }
+
+        /* Bottom nav */
+        .bnav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            padding: 4px 4px calc(4px + env(safe-area-inset-bottom))
+        }
+
+        .bnav button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 8px 2px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            border: none;
+            background: none;
+            min-height: 56px;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .bnav button.on {
+            color: #2563eb;
+            background: #eff6ff
+        }
+
+        .bnav button .ico {
+            font-size: 20px
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+        <div>
+            <h1 class="text-sm sm:text-base font-extrabold text-gray-800 tracking-tight">ARTARIA FERA</h1>
+            <p class="text-[9px] text-gray-400 font-semibold tracking-widest uppercase">Kaçanik — ERP</p>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px] flex-wrap justify-end">
+            <div class="bg-gray-50 border border-gray-200 px-2 py-1 rounded text-gray-600">📦<b id="hS">0</b></div>
+            <div class="bg-gray-50 border border-gray-200 px-2 py-1 rounded text-gray-600"><b id="hW">0</b>g</div>
+            <div class="bg-emerald-50 border border-emerald-200 px-2 py-1 rounded text-emerald-700">💰<b id="hR">€0</b>
+            </div>
+        </div>
+    </header>
+
+    <!-- PANELS CONTAINER -->
+    <div class="max-w-5xl mx-auto px-3 py-3 sm:py-4">
+
+        <!-- ═══════ HYRJE ═══════ -->
+        <div id="pHyrje" class="panel active">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5">
+                <h2 class="text-sm font-bold text-gray-700 mb-4">📥 Regjistrimi i Stokut</h2>
+                <form id="frmH" autocomplete="off">
+                    <div class="mb-4">
+                        <label class="lbl">Materiali</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer"><input type="radio" name="matH" value="Ari"
+                                    class="peer sr-only" />
+                                <div
+                                    class="peer-checked:bg-amber-500 peer-checked:text-white peer-checked:border-amber-500 bg-gray-50 border-2 border-gray-200 text-gray-600 rounded-xl py-3.5 text-center font-bold transition-all active:scale-95">
+                                    🥇 ARI</div>
+                            </label>
+                            <label class="cursor-pointer"><input type="radio" name="matH" value="Argjend"
+                                    class="peer sr-only" />
+                                <div
+                                    class="peer-checked:bg-slate-500 peer-checked:text-white peer-checked:border-slate-500 bg-gray-50 border-2 border-gray-200 text-gray-600 rounded-xl py-3.5 text-center font-bold transition-all active:scale-95">
+                                    🥈 ARGJEND</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4 relative" id="cWH">
+                        <label class="lbl">Kategoria</label>
+                        <input type="text" id="cIH" placeholder="Shkruaj për të kërkuar..." class="inp" />
+                        <div id="cDH"
+                            class="hidden absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
+                        </div>
+                    </div>
+                    <div id="sSecH" class="mb-4 hidden">
+                        <label class="lbl">Nënkategoria <span id="sLH" class="text-blue-500"></span></label>
+                        <div id="sBtH" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div class="mb-5">
+                        <label class="lbl">Pesha (gr)</label>
+                        <input type="number" id="wIH" step="0.01" min="0.01" placeholder="0.00" required
+                            class="inp font-semibold" />
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition-colors text-sm min-h-[48px]">✅
+                        REGJISTRO NË STOK</button>
+                    <div id="toast"
+                        class="hidden mt-3 bg-green-50 border border-green-200 text-green-700 text-sm font-medium text-center px-3 py-2.5 rounded-xl">
+                        ✅ <span id="tSku" class="sku font-bold"></span></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ═══════ DALJE ═══════ -->
+        <div id="pDalje" class="panel">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5">
+                <div class="mb-3">
+                    <label class="lbl">🔎 Kërko / Skano SKU</label>
+                    <input type="text" id="skuI" placeholder="Skano ose shkruaj SKU..." oninput="rS()"
+                        class="inp sku font-semibold border-blue-200 bg-blue-50/30" />
+                </div>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <input type="text" id="dSr" placeholder="🔍 Kërko..." oninput="rS()"
+                        class="flex-1 min-w-[100px] px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400" />
+                    <select id="dFM" onchange="rS()"
+                        class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white min-h-[44px]">
+                        <option value="all">Të Gjitha</option>
+                        <option value="Ari">Ari</option>
+                        <option value="Argjend">Argjend</option>
+                    </select>
+                    <select id="dFC" onchange="rS()"
+                        class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white min-h-[44px]">
+                        <option value="all">Kategorit</option>
+                    </select>
+                </div>
+                <div class="border border-gray-200 rounded-xl overflow-x-auto -mx-1 px-1">
+                    <table class="w-full text-sm min-w-[580px]">
+                        <thead>
+                            <tr
+                                class="bg-gray-50 border-b text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                <th class="px-3 py-2.5 text-left">SKU</th>
+                                <th class="px-3 py-2.5 text-left">Mat.</th>
+                                <th class="px-3 py-2.5 text-left">Kategoria</th>
+                                <th class="px-3 py-2.5 text-left">Nënkat.</th>
+                                <th class="px-3 py-2.5 text-right">Pesha</th>
+                                <th class="px-3 py-2.5 text-left">Data</th>
+                                <th class="px-3 py-2.5 text-center">Veprimi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dTb" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="dEm" class="hidden text-center py-8 text-gray-400 text-sm">📦 Stoku bosh.</div>
+                <div class="mt-2 flex justify-between text-xs text-gray-400 px-1"><span id="dC"></span><span
+                        id="dW"></span></div>
+            </div>
+        </div>
+
+        <!-- ═══════ SHITJET ═══════ -->
+        <div id="pShitje" class="panel">
+            <div class="space-y-3">
+                <!-- Stats Row 1 -->
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                    <div class="bg-white border border-amber-200 rounded-xl px-3 sm:px-4 py-3">
+                        <p class="text-[9px] font-bold text-amber-500 uppercase tracking-wider">🥇 Ari i Shitur</p>
+                        <p class="text-lg sm:text-xl font-extrabold text-amber-700 mt-1"><span id="stG">0.00</span>
+                            <span class="text-[10px] font-bold">gr</span></p>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-3">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">🥈 Argjend i Shitur</p>
+                        <p class="text-lg sm:text-xl font-extrabold text-slate-700 mt-1"><span id="stSi">0.00</span>
+                            <span class="text-[10px] font-bold">gr</span></p>
+                    </div>
+                </div>
+                <!-- Stats Row 2 -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                    <div class="bg-white border border-amber-200 rounded-xl px-3 sm:px-4 py-3">
+                        <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">💰 Shitjet ARI</p>
+                        <p class="text-lg sm:text-xl font-extrabold text-amber-700 mt-1">€<span id="stRA">0</span></p>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-3">
+                        <p class="text-[9px] font-bold text-slate-600 uppercase tracking-wider">💰 Shitjet ARGJEND</p>
+                        <p class="text-lg sm:text-xl font-extrabold text-slate-700 mt-1">€<span id="stRS">0</span></p>
+                    </div>
+                    <div
+                        class="col-span-2 sm:col-span-1 bg-emerald-50 border border-emerald-200 rounded-xl px-3 sm:px-4 py-3">
+                        <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">💎 TOTALI PËRGJITHSHËM
+                        </p>
+                        <p class="text-lg sm:text-xl font-extrabold text-emerald-700 mt-1">€<span id="stR">0</span>
+                            <span class="text-[10px] font-normal text-emerald-500">· <span id="stC">0</span>
+                                artikuj</span></p>
+                    </div>
+                </div>
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <input type="text" id="hSr" placeholder="🔍 Kërko..." oninput="rH()"
+                            class="flex-1 min-w-[100px] px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400" />
+                        <select id="hFM" onchange="rH()"
+                            class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white min-h-[44px]">
+                            <option value="all">Të Gjitha</option>
+                            <option value="Ari">Ari</option>
+                            <option value="Argjend">Argjend</option>
+                        </select>
+                    </div>
+                    <div class="border border-gray-200 rounded-xl overflow-x-auto -mx-1 px-1">
+                        <table class="w-full text-sm min-w-[620px]">
+                            <thead>
+                                <tr
+                                    class="bg-emerald-50 border-b text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                                    <th class="px-3 py-2.5 text-left">SKU</th>
+                                    <th class="px-3 py-2.5 text-left">Klienti</th>
+                                    <th class="px-3 py-2.5 text-left">Mat.</th>
+                                    <th class="px-3 py-2.5 text-left">Kategoria</th>
+                                    <th class="px-3 py-2.5 text-right">Pesha</th>
+                                    <th class="px-3 py-2.5 text-left">Data</th>
+                                    <th class="px-3 py-2.5 text-right">Çmimi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hTb" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="hEm" class="hidden text-center py-8 text-gray-400 text-sm">📭 Nuk ka shitje.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ BLERJET ═══════ -->
+        <div id="pBlerje" class="panel">
+            <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-3">
+                <h3 class="text-sm font-bold text-orange-800 mb-3">🛒 Regjistro Blerje</h3>
+                <form id="frmB" autocomplete="off">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                        <div><label class="lbl">Emri i Klientit</label><input type="text" id="bName" required
+                                class="inp" placeholder="Emri..." /></div>
+                        <div><label class="lbl">Nr Personal</label><input type="text" id="bNr" required class="inp"
+                                placeholder="Nr..." /></div>
+                        <div><label class="lbl">Adresa</label><input type="text" id="bAddr" class="inp"
+                                placeholder="Adresa..." /></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="lbl">Materiali</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer"><input type="radio" name="matB" value="Ari"
+                                    class="peer sr-only" onchange="onBMat()" />
+                                <div
+                                    class="peer-checked:bg-amber-500 peer-checked:text-white peer-checked:border-amber-500 bg-white border-2 border-gray-200 text-gray-600 rounded-xl py-3 text-center font-bold text-sm transition-all active:scale-95">
+                                    🥇 ARI</div>
+                            </label>
+                            <label class="cursor-pointer"><input type="radio" name="matB" value="Argjend"
+                                    class="peer sr-only" onchange="onBMat()" />
+                                <div
+                                    class="peer-checked:bg-slate-500 peer-checked:text-white peer-checked:border-slate-500 bg-white border-2 border-gray-200 text-gray-600 rounded-xl py-3 text-center font-bold text-sm transition-all active:scale-95">
+                                    🥈 ARGJEND</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="karatSec" class="mb-3 hidden">
+                        <label class="lbl">Karati</label>
+                        <div id="karatBtns" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                    <div id="silverBadge" class="mb-3 hidden">
+                        <label class="lbl">Karati</label>
+                        <span
+                            class="inline-block px-4 py-2 rounded-xl bg-slate-200 text-slate-700 text-sm font-bold">925
+                            Sterling</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="lbl">Produktet (kliko për të shtuar)</label>
+                        <div id="bCatBtns" class="flex flex-wrap gap-1.5 mb-2"></div>
+                        <div id="bCatTags" class="flex flex-wrap gap-1.5 min-h-[32px]"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div><label class="lbl">Pesha (gr)</label><input type="number" id="wIB" step="0.01" min="0.01"
+                                placeholder="0.00" required class="inp font-semibold" /></div>
+                        <div><label class="lbl">Çmimi Paguar (€)</label><input type="number" id="pIB" step="0.01"
+                                min="0" placeholder="0.00" required class="inp font-semibold" /></div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition-colors text-sm min-h-[48px]">🛒
+                        REGJISTRO BLERJEN</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                <div class="border border-gray-200 rounded-xl overflow-x-auto -mx-1 px-1">
+                    <table class="w-full text-sm min-w-[640px]">
+                        <thead>
+                            <tr
+                                class="bg-orange-50 border-b text-[10px] font-bold text-orange-700 uppercase tracking-wider">
+                                <th class="px-3 py-2.5 text-left">Data</th>
+                                <th class="px-3 py-2.5 text-left">Klienti</th>
+                                <th class="px-3 py-2.5 text-left">Nr Personal</th>
+                                <th class="px-3 py-2.5 text-left">Mat.</th>
+                                <th class="px-3 py-2.5 text-left">Karati</th>
+                                <th class="px-3 py-2.5 text-left">Produktet</th>
+                                <th class="px-3 py-2.5 text-right">Pesha</th>
+                                <th class="px-3 py-2.5 text-right">Çmimi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bTb" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="bEm" class="hidden text-center py-8 text-gray-400 text-sm">📭 Nuk ka blerje.</div>
+                <div class="mt-2 flex justify-between text-xs text-gray-400 px-1"><span id="bC"></span><span
+                        id="bW"></span></div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <!-- SELL MODAL (bottom sheet on mobile) -->
+    <div id="sellModal" class="overlay">
+        <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-sm sm:mx-4 p-5 pb-8 sm:pb-5">
+            <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4 sm:hidden"></div>
+            <h3 class="font-bold text-gray-800 mb-1">💰 Konfirmo Shitjen</h3>
+            <p id="smInfo" class="text-sm text-gray-500 mb-4"></p>
+            <div class="mb-3">
+                <label class="lbl">Emri i Klientit</label>
+                <input type="text" id="smName" class="inp" placeholder="Emri i klientit..." />
+            </div>
+            <div class="mb-4">
+                <label class="lbl">Çmimi Final (€)</label>
+                <input type="number" id="smPrice" step="0.01" min="0" class="inp font-semibold" placeholder="0.00" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeSM()"
+                    class="py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 active:bg-gray-100 min-h-[48px]">Anulo</button>
+                <button onclick="doSell()"
+                    class="py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-sm font-bold min-h-[48px]">Konfirmo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bnav">
+        <button id="n1" onclick="go('hyrje')"><span class="ico">📥</span>HYRJE</button>
+        <button id="n2" onclick="go('dalje')"><span class="ico">📤</span>DALJE</button>
+        <button id="n3" onclick="go('shitje')"><span class="ico">💰</span>SHITJET</button>
+        <button id="n4" onclick="go('blerje')"><span class="ico">🛒</span>BLERJET</button>
+    </nav>
+
+    <script>
+        const SUBCATS = {
+            'Unaza': ['Fejese', 'Tektash', 'Rolex', 'Kuban', 'Preses', '1 Gramshe', 'Badema', 'Elegante'],
+            'Zingjir': ['Spiga', 'Forca', 'Snake', 'Figaro', 'Valis', 'Pancir', 'Valencia', 'Singapor'],
+            'Qafore': ['Vanklif', 'Tiffany', 'Cartier', 'Tektash', 'Me Shkronja', 'Me emra', 'Me pllaka'],
+            'Vathë': ['Kuban', 'Rolex', 'Preses', 'Rreth', 'Katror', 'Trekandsh', 'Me burme', 'Me topa', 'Per femije'],
+            'Byzylyk': ['Kuban', 'Rolex', 'Kartier', 'Tiffany', 'I dredht', 'Pancir', 'Tennis', 'Me pllaka', 'Vanklif', 'Te lehta', 'Mbretror', 'Monaco'],
+            'Hallka': ['Cartier', 'Tetkandesh', 'Me Çerek 14k', 'Te lehta'],
+            'Komplete': ['Rolex', 'Kuban', 'Cartier', 'Tiffany', 'Venecian', 'Te dredht', 'Me topa'],
+            'Varse': ['Vanklif', 'Shqiponje', 'Pllake', 'Shkornje', 'Per femije'],
+        };
+        const CATS = Object.keys(SUBCATS);
+        const KARATS = ['8k', '9k', '10k', '12k', '14k', '18k', '21k', '22k', '23k', '24k'];
+        const KK = { i: 'af_i', s: 'af_s', q: 'af_q', b: 'af_b' };
+
+        let items = ld(KK.i, []), custS = ld(KK.s, {}), seq = ld(KK.q, 0), buys = ld(KK.b, []);
+        let selCH = '', selSH = '', sellSku = null, selBK = '', selBC = [];
+
+        function ld(k, f) { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : f } catch { return f } }
+        function si() { localStorage.setItem(KK.i, JSON.stringify(items)); hdr() }
+        function ssb() { localStorage.setItem(KK.s, JSON.stringify(custS)) }
+        function sseq() { localStorage.setItem(KK.q, JSON.stringify(seq)) }
+        function svB() { localStorage.setItem(KK.b, JSON.stringify(buys)) }
+        function gs(c) { const d = SUBCATS[c] || [], u = custS[c] || [], m = [...d]; u.forEach(x => { if (!m.includes(x)) m.push(x) }); return m }
+
+        function c2(s) { if (!s) return 'XX'; const w = s.trim().split(/\s+/).filter(x => x); if (w.length >= 2) return (fa(w[0]) + fa(w[1])).toUpperCase(); const a = (w[0] || '').replace(/[^a-zA-ZëçÇË]/g, ''); return a.length >= 2 ? a.substring(0, 2).toUpperCase() : a.length === 1 ? (a[0] + 'X').toUpperCase() : 'XX' }
+        function fa(w) { for (let i = 0; i < w.length; i++)if (/[a-zA-ZëçÇË]/i.test(w[i])) return w[i]; return 'X' }
+        function mkSku(m, c, s) { seq++; sseq(); return `${c2(m)}-${c2(c)}-${c2(s)}-${String(seq).padStart(4, '0')}` }
+
+        // ── TABS ──
+        function go(t) {
+            ['Hyrje', 'Dalje', 'Shitje', 'Blerje'].forEach(p => document.getElementById('p' + p).classList.remove('active'));
+            document.getElementById('p' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
+            ['n1', 'n2', 'n3', 'n4'].forEach(n => document.getElementById(n).classList.remove('on'));
+            const map = { hyrje: 'n1', dalje: 'n2', shitje: 'n3', blerje: 'n4' };
+            document.getElementById(map[t]).classList.add('on');
+            if (t === 'dalje') { rS(); fcf('dFC', 'ne_stok'); setTimeout(() => document.getElementById('skuI').focus(), 80) }
+            if (t === 'shitje') rH();
+            if (t === 'blerje') { initBCat(); rB() }
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // ══ HYRJE AUTOCOMPLETE ══
+        const cIH = document.getElementById('cIH'), cDH = document.getElementById('cDH');
+        cIH.addEventListener('input', acH); cIH.addEventListener('focus', acH);
+        function acH() {
+            selCH = ''; selSH = ''; document.getElementById('sSecH').classList.add('hidden');
+            const v = cIH.value.trim().toLowerCase(), m = v === '' ? CATS : CATS.filter(c => c.toLowerCase().includes(v));
+            if (!m.length) { cDH.classList.add('hidden'); return }
+            cDH.innerHTML = ''; cDH.classList.remove('hidden');
+            m.forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.className = 'w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 active:bg-gray-200 border-b border-gray-100 last:border-0'; b.textContent = n; b.onclick = () => { selCH = n; selSH = ''; cIH.value = n; cDH.classList.add('hidden'); showSubsH(n) }; cDH.appendChild(b) });
+        }
+        document.addEventListener('click', e => { if (!document.getElementById('cWH').contains(e.target)) cDH.classList.add('hidden') });
+
+        function showSubsH(cat) {
+            const sec = document.getElementById('sSecH'), ctr = document.getElementById('sBtH');
+            document.getElementById('sLH').textContent = `(${cat})`; ctr.innerHTML = ''; sec.classList.remove('hidden');
+            const cls = 'sb px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-sm font-semibold text-gray-600 hover:border-blue-400 transition-all min-h-[44px]';
+            const act = 'sb px-4 py-2.5 rounded-xl border-2 border-blue-500 bg-blue-500 text-sm font-bold text-white ring-2 ring-blue-200 transition-all min-h-[44px]';
+            gs(cat).forEach(s => {
+                const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = s;
+                b.onclick = () => { selSH = s; ctr.querySelectorAll('.sb').forEach(x => x.className = cls); b.className = act; document.getElementById('wIH').focus() };
+                ctr.appendChild(b);
+            });
+            const ab = document.createElement('button'); ab.type = 'button';
+            ab.className = 'px-4 py-2.5 rounded-xl border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-all min-h-[44px]';
+            ab.textContent = '+ Shto'; ab.onclick = () => {
+                const n = prompt(`Nënkategori e re për "${cat}":`); if (!n || !n.trim()) return; const t = n.trim();
+                if (gs(cat).map(x => x.toLowerCase()).includes(t.toLowerCase())) { alert('Ekziston.'); return }
+                if (!custS[cat]) custS[cat] = []; custS[cat].push(t); ssb(); showSubsH(cat);
+                setTimeout(() => { ctr.querySelectorAll('.sb').forEach(b => { if (b.textContent === t) { selSH = t; ctr.querySelectorAll('.sb').forEach(x => x.className = cls); b.className = act } }) }, 50);
+            }; ctr.appendChild(ab);
+        }
+
+        // ══ HYRJE FORM ══
+        document.getElementById('frmH').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const mel = document.querySelector('input[name="matH"]:checked'), w = parseFloat(document.getElementById('wIH').value);
+            if (!mel) return alert('Zgjedh materialin.'); if (!selCH) return alert('Zgjedh kategorinë.'); if (!selSH) return alert('Zgjedh nënkategorinë.'); if (!w || w <= 0) return alert('Vendos peshën.');
+            const sku = mkSku(mel.value, selCH, selSH);
+            items.push({ sku, material: mel.value, category: selCH, subcategory: selSH, weight: w, date: new Date().toLocaleDateString('sq-AL'), ts: Date.now(), status: 'ne_stok', sell_date: null, sell_price: null, customer_name: null });
+            si();
+            document.getElementById('tSku').textContent = sku; const t = document.getElementById('toast'); t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2500);
+            this.reset(); selCH = ''; selSH = ''; cIH.value = ''; document.getElementById('sSecH').classList.add('hidden'); cDH.classList.add('hidden');
+        });
+
+        // ══ STOCK TABLE ══
+        function rS() {
+            const tb = document.getElementById('dTb'), em = document.getElementById('dEm');
+            const sk = (document.getElementById('skuI').value || '').trim().toUpperCase(), sr = (document.getElementById('dSr').value || '').toLowerCase(), fm = document.getElementById('dFM').value, fc = document.getElementById('dFC').value;
+            let ls = items.filter(i => i.status === 'ne_stok').filter(i => {
+                if (sk) return i.sku.toUpperCase().includes(sk);
+                const ms = !sr || i.sku.toLowerCase().includes(sr) || i.category.toLowerCase().includes(sr) || (i.subcategory || '').toLowerCase().includes(sr) || i.material.toLowerCase().includes(sr);
+                return ms && (fm === 'all' || i.material === fm) && (fc === 'all' || i.category === fc);
+            });
+            ls.sort((a, b) => b.ts - a.ts);
+            if (!ls.length) { tb.innerHTML = ''; em.classList.remove('hidden'); document.getElementById('dC').textContent = ''; document.getElementById('dW').textContent = ''; return }
+            em.classList.add('hidden');
+            tb.innerHTML = ls.map(i => {
+                const bg = i.material === 'Ari' ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700">Ari</span>' : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">Argjend</span>';
+                return `<tr class="hover:bg-gray-50"><td class="px-3 py-2.5 sku text-xs font-bold text-blue-700">${i.sku}</td><td class="px-3 py-2.5">${bg}</td><td class="px-3 py-2.5 font-semibold text-gray-700 text-xs">${i.category}</td><td class="px-3 py-2.5 text-gray-500 text-xs">${i.subcategory || ''}</td><td class="px-3 py-2.5 text-right font-bold tabular-nums text-xs">${i.weight.toFixed(2)}</td><td class="px-3 py-2.5 text-[10px] text-gray-400">${i.date}</td><td class="px-3 py-2.5 text-center"><button onclick="openSM('${i.sku}')" class="px-3 py-2 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-lg min-h-[36px]">💰 Shit</button></td></tr>`
+            }).join('');
+            document.getElementById('dC').textContent = `${ls.length} artikuj`;
+            document.getElementById('dW').textContent = `${ls.reduce((s, i) => s + i.weight, 0).toFixed(2)} gr`;
+        }
+
+        // ══ SELL MODAL ══
+        function openSM(sku) {
+            const it = items.find(i => i.sku === sku && i.status === 'ne_stok'); if (!it) return;
+            sellSku = sku;
+            document.getElementById('smInfo').innerHTML = `<span class="sku text-xs font-bold text-gray-400">${it.sku}</span><br><b>${it.category} — ${it.subcategory || ''}</b> · ${it.weight.toFixed(2)} gr`;
+            document.getElementById('smName').value = ''; document.getElementById('smPrice').value = '';
+            document.getElementById('sellModal').classList.add('open');
+            setTimeout(() => document.getElementById('smName').focus(), 150);
+        }
+        function closeSM() { document.getElementById('sellModal').classList.remove('open'); sellSku = null }
+        function doSell() {
+            if (!sellSku) return;
+            const name = document.getElementById('smName').value.trim(), price = parseFloat(document.getElementById('smPrice').value);
+            if (isNaN(price) || price < 0) { alert('Çmimi nuk është valid.'); return }
+            const it = items.find(i => i.sku === sellSku && i.status === 'ne_stok'); if (!it) return;
+            it.status = 'shitur'; it.sell_price = price; it.customer_name = name || '—'; it.sell_date = new Date().toLocaleString('sq-AL');
+            si(); rS(); closeSM();
+        }
+        document.getElementById('sellModal').addEventListener('click', function (e) { if (e.target === this) closeSM() });
+
+        // ══ SOLD TABLE + STATS ══
+        function rH() {
+            const tb = document.getElementById('hTb'), em = document.getElementById('hEm');
+            const sr = (document.getElementById('hSr').value || '').toLowerCase(), fm = document.getElementById('hFM').value;
+            const all = items.filter(i => i.status === 'shitur');
+            const gS = all.filter(i => i.material === 'Ari'), sS = all.filter(i => i.material === 'Argjend');
+            const gW = gS.reduce((s, i) => s + i.weight, 0), sW = sS.reduce((s, i) => s + i.weight, 0);
+            const gR = gS.reduce((s, i) => s + (i.sell_price || 0), 0), sR = sS.reduce((s, i) => s + (i.sell_price || 0), 0);
+            document.getElementById('stG').textContent = gW.toFixed(2);
+            document.getElementById('stSi').textContent = sW.toFixed(2);
+            document.getElementById('stRA').textContent = gR.toFixed(2);
+            document.getElementById('stRS').textContent = sR.toFixed(2);
+            document.getElementById('stR').textContent = (gR + sR).toFixed(2);
+            document.getElementById('stC').textContent = all.length;
+            let ls = all.filter(i => {
+                const ms = !sr || i.sku.toLowerCase().includes(sr) || i.category.toLowerCase().includes(sr) || (i.customer_name || '').toLowerCase().includes(sr);
+                return ms && (fm === 'all' || i.material === fm);
+            });
+            ls.sort((a, b) => b.ts - a.ts);
+            if (!ls.length) { tb.innerHTML = ''; em.classList.remove('hidden'); return }
+            em.classList.add('hidden');
+            tb.innerHTML = ls.map(i => {
+                const bg = i.material === 'Ari' ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700">Ari</span>' : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">Argjend</span>';
+                return `<tr class="hover:bg-gray-50"><td class="px-3 py-2.5 sku text-xs font-bold text-emerald-700">${i.sku}</td><td class="px-3 py-2.5 text-xs text-gray-700">${i.customer_name || '—'}</td><td class="px-3 py-2.5">${bg}</td><td class="px-3 py-2.5 text-xs text-gray-600">${i.category}</td><td class="px-3 py-2.5 text-right font-bold tabular-nums text-xs">${i.weight.toFixed(2)}</td><td class="px-3 py-2.5 text-xs text-emerald-600">${i.sell_date}</td><td class="px-3 py-2.5 text-right font-bold text-emerald-700 text-xs">€${(i.sell_price || 0).toFixed(2)}</td></tr>`
+            }).join('');
+        }
+
+        // ══ BLERJE — MATERIAL & KARAT ══
+        function onBMat() {
+            const mel = document.querySelector('input[name="matB"]:checked'); if (!mel) return;
+            selBK = '';
+            if (mel.value === 'Ari') {
+                document.getElementById('karatSec').classList.remove('hidden');
+                document.getElementById('silverBadge').classList.add('hidden');
+                rndrK();
+            } else {
+                document.getElementById('karatSec').classList.add('hidden');
+                document.getElementById('silverBadge').classList.remove('hidden');
+                selBK = '925';
+            }
+        }
+        function rndrK() {
+            const ctr = document.getElementById('karatBtns'); ctr.innerHTML = '';
+            const cls = 'kbtn px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-amber-400 transition-all min-h-[44px] cursor-pointer';
+            const act = 'kbtn px-3 py-2.5 rounded-xl border-2 border-amber-500 bg-amber-500 text-xs font-bold text-white ring-2 ring-amber-200 transition-all min-h-[44px] cursor-pointer';
+            KARATS.forEach(k => {
+                const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = k;
+                b.onclick = () => { selBK = k; ctr.querySelectorAll('.kbtn').forEach(x => x.className = cls); b.className = act };
+                ctr.appendChild(b);
+            });
+        }
+
+        // ══ BLERJE — MULTI-CAT ══
+        function initBCat() {
+            const ctr = document.getElementById('bCatBtns'); ctr.innerHTML = '';
+            CATS.forEach(c => {
+                const b = document.createElement('button'); b.type = 'button';
+                b.className = 'bc px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-600 hover:border-orange-400 hover:bg-orange-50 transition-all min-h-[44px] cursor-pointer active:scale-95';
+                b.textContent = c; b.onclick = () => { if (!selBC.includes(c)) { selBC.push(c); rndrTags() } };
+                ctr.appendChild(b);
+            });
+            rndrTags();
+        }
+        function rndrTags() {
+            const ctr = document.getElementById('bCatTags'); ctr.innerHTML = '';
+            if (!selBC.length) { ctr.innerHTML = '<span class="text-xs text-gray-400 italic py-1">Asnjë produkt i zgjedhur</span>'; return }
+            selBC.forEach(c => {
+                const t = document.createElement('span'); t.className = 'tag bg-orange-100 text-orange-700';
+                t.innerHTML = `${c}<span class="x" onclick="rmBC('${c}')">&times;</span>`; ctr.appendChild(t);
+            });
+        }
+        function rmBC(c) { selBC = selBC.filter(x => x !== c); rndrTags() }
+
+        // ══ BLERJE FORM ══
+        document.getElementById('frmB').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const mel = document.querySelector('input[name="matB"]:checked');
+            const name = document.getElementById('bName').value.trim(), nr = document.getElementById('bNr').value.trim(), addr = document.getElementById('bAddr').value.trim();
+            const w = parseFloat(document.getElementById('wIB').value), p = parseFloat(document.getElementById('pIB').value);
+            if (!mel) return alert('Zgjedh materialin.'); if (!name) return alert('Shkruaj emrin.'); if (!nr) return alert('Shkruaj nr personal.');
+            if (!selBK) return alert('Zgjedh karatin.'); if (!selBC.length) return alert('Zgjedh së paku një produkt.');
+            if (!w || w <= 0) return alert('Vendos peshën.'); if (isNaN(p) || p < 0) return alert('Vendos çmimin.');
+            buys.push({ id: Date.now(), date: new Date().toLocaleString('sq-AL'), customer: name, nr_personal: nr, address: addr, material: mel.value, karat: selBK, categories: [...selBC], weight: w, price: p });
+            svB(); rB();
+            this.reset(); selBK = ''; selBC = [];
+            document.getElementById('karatSec').classList.add('hidden'); document.getElementById('silverBadge').classList.add('hidden');
+            initBCat();
+        });
+
+        function rB() {
+            const tb = document.getElementById('bTb'), em = document.getElementById('bEm');
+            if (!buys.length) { tb.innerHTML = ''; em.classList.remove('hidden'); document.getElementById('bC').textContent = ''; document.getElementById('bW').textContent = ''; return }
+            em.classList.add('hidden');
+            const sorted = [...buys].sort((a, b) => b.id - a.id);
+            tb.innerHTML = sorted.map(i => {
+                const bg = i.material === 'Ari' ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700">Ari</span>' : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">Argjend</span>';
+                const cats = (i.categories || [i.category]).join(', ');
+                return `<tr class="hover:bg-gray-50"><td class="px-3 py-2.5 text-xs text-gray-500">${i.date}</td><td class="px-3 py-2.5 text-xs font-semibold text-gray-700">${i.customer}</td><td class="px-3 py-2.5 text-xs text-gray-500">${i.nr_personal}</td><td class="px-3 py-2.5">${bg}</td><td class="px-3 py-2.5 text-xs font-bold text-gray-600">${i.karat || '—'}</td><td class="px-3 py-2.5 text-xs text-gray-600">${cats}</td><td class="px-3 py-2.5 text-right font-bold tabular-nums text-xs">${i.weight.toFixed(2)}</td><td class="px-3 py-2.5 text-right font-bold text-orange-700 text-xs">€${i.price.toFixed(2)}</td></tr>`
+            }).join('');
+            document.getElementById('bC').textContent = `${buys.length} blerje`;
+            document.getElementById('bW').textContent = `${buys.reduce((s, i) => s + i.weight, 0).toFixed(2)} gr · €${buys.reduce((s, i) => s + i.price, 0).toFixed(2)}`;
+        }
+
+        function fcf(id, st) { const s = document.getElementById(id); const c = [...new Set(items.filter(i => i.status === st).map(i => i.category))].sort(); s.innerHTML = '<option value="all">Kategorit</option>'; c.forEach(x => { s.innerHTML += `<option value="${x}">${x}</option>` }) }
+
+        function hdr() {
+            const stk = items.filter(i => i.status === 'ne_stok'), sld = items.filter(i => i.status === 'shitur');
+            document.getElementById('hS').textContent = stk.length;
+            document.getElementById('hW').textContent = stk.reduce((s, i) => s + i.weight, 0).toFixed(2);
+            document.getElementById('hR').textContent = '€' + sld.reduce((s, i) => s + (i.sell_price || 0), 0).toFixed(2);
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { cDH.classList.add('hidden'); closeSM() } });
+
+        // MIGRATE
+        items.forEach(i => { if (!i.status) i.status = 'ne_stok'; if (!i.sku && i.id) i.sku = i.id; if (i.sell_price === undefined) i.sell_price = null; if (i.sell_date === undefined) i.sell_date = null; if (i.customer_name === undefined) i.customer_name = null });
+        si(); go('hyrje');
+    </script>
+</body>
+
+</html>
